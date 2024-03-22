@@ -12,11 +12,20 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { TipTap } from "@/components/tiptap";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Article } from "@/components/article";
 
 export default function Home() {
   const [isEditing, setIsEditing] = useState(false);
+  const [description, setDescription] = useState("");
+
+  useEffect(() => {
+    const storedDescription = JSON.parse(
+      localStorage.getItem("article") || '""'
+    );
+    setDescription(storedDescription);
+    form.reset({ description: storedDescription });
+  }, []);
 
   const formSchema = z.object({
     description: z.string().trim(),
@@ -26,13 +35,15 @@ export default function Home() {
     resolver: zodResolver(formSchema),
     mode: "onChange",
     defaultValues: {
-      description: localStorage.getItem("article") || "",
+      description: description,
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsEditing(false);
-    localStorage.setItem("article", JSON.stringify(values.description));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("article", JSON.stringify(values.description));
+    }
   }
 
   return (

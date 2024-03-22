@@ -4,6 +4,7 @@ import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { ToolBar } from "./tool-bar";
 import Heading from "@tiptap/extension-heading";
+import Image from "@tiptap/extension-image";
 
 export const TipTap = ({
   description,
@@ -14,13 +15,20 @@ export const TipTap = ({
 }) => {
   const editor = useEditor({
     extensions: [
-      StarterKit.configure(),
+      StarterKit.configure({
+        listItem: {
+          HTMLAttributes: {
+            class: "list-disc ml-4",
+          },
+        },
+      }),
       Heading.configure({
         HTMLAttributes: {
           class: "text-2xl font-bold",
           levels: 2,
         },
       }),
+      Image,
     ],
     content: description,
     editorProps: {

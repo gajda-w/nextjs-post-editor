@@ -7,12 +7,52 @@ import {
   List,
   ListOrdered,
   Heading2,
+  Image as ImageIcon,
 } from "lucide-react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Toggle } from "@/components/ui/toggle";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 export const ToolBar = ({ editor }: { editor: Editor | null }) => {
+  const formSchema = z.object({
+    url: z.string().url(),
+  });
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    mode: "onChange",
+    defaultValues: {
+      url: "",
+    },
+  });
+
   if (!editor) {
     return null;
+  }
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    editor?.commands.setImage({
+      src: values.url,
+    });
   }
 
   return (
@@ -66,6 +106,35 @@ export const ToolBar = ({ editor }: { editor: Editor | null }) => {
       >
         <ListOrdered />
       </Toggle>
+
+      <Dialog>
+        <DialogTrigger>
+          <Toggle size="sm">
+            <ImageIcon />
+          </Toggle>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Select image</DialogTitle>
+            <DialogDescription>
+              {`We can here call to all user images and also we can upload new. For now let's upaload new`}
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <FormItem>
+                <FormLabel>Image URL</FormLabel>
+                <FormControl>
+                  <Input {...form.register("url")} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+              {/* <Input placeholder="image url" /> */}
+              <Button type="submit">Submit</Button>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
